@@ -8,7 +8,8 @@ error_reporting(E_ALL);
 
 // 2. Подключение файлов
 
-require(__DIR__ . '/../components/router.php');
+define('ROOT', dirname(__FILE__, 2));
+require_once(ROOT.'/components/router.php');
 
 // 3. установка соеденения с БД
 

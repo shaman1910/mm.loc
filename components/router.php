@@ -33,20 +33,28 @@ class Router
         foreach ($this->routes as $uriPattern => $path) {
 
             //сравниваем $uriPattern и $uri
-            if (preg_match("~$uriPattern~", $uri)){
-
-                // Определить какой контроллер и экшн отбабатывают запрос
+            if(preg_match("~$uriPattern~", $uri)) {
 
                 $segments = explode('/', $path);
 
-
                 $controllerName = array_shift($segments).'Controller';
-
                 $controllerName = ucfirst($controllerName);
 
-                $actionName = 'action'.ucfirst(array_shift($segments));
-                echo "$actionName <br>";
-                echo $controllerName;
+
+                $actionName = 'action'.ucfirst((array_shift($segments)));
+
+                $controllerFile = ROOT . '/controllers/' .$controllerName. '.php';
+
+
+                if (file_exists($controllerFile)) {
+                    include_once($controllerFile);
+                }
+
+                $controllerObject = new $controllerName;
+                $result = $controllerObject->$actionName();
+                if ($result != null) {
+                    break;
+                }
             }
 
         }
