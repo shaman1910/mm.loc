@@ -10,7 +10,7 @@ class Router
 	public function __construct()
 	{
 
-        $routesPath = __DIR__ . '/../config/routes.php';
+        $routesPath = ROOT . '/config/routes.php';
         $this->routes = include ($routesPath);
 	}
 
@@ -35,23 +35,36 @@ class Router
             //сравниваем $uriPattern и $uri
             if(preg_match("~$uriPattern~", $uri)) {
 
-                $segments = explode('/', $path);
+                // Получаем внутренний путь из внешнего согласно правилу
+                $internalRoute = preg_replace("~$uriPattern~", $path, $uri);
+
+                // определяем контроллен экшн и параметры
+
+                $segments = explode('/', $internalRoute);
 
                 $controllerName = array_shift($segments).'Controller';
                 $controllerName = ucfirst($controllerName);
 
 
-                $actionName = 'action'.ucfirst((array_shift($segments)));
+                $actionName = 'action' . ucfirst((array_shift($segments)));
 
-                $controllerFile = ROOT . '/controllers/' .$controllerName. '.php';
+                $parameters = $segments;
+
+                // подключить файл класса контроллера
+                $controllerFile = ROOT . '/controllers/' . $controllerName . '.php';
 
 
                 if (file_exists($controllerFile)) {
                     include_once($controllerFile);
                 }
-
+                // создать обьект и вызвать метод (т.е. экшн)
                 $controllerObject = new $controllerName;
-                $result = $controllerObject->$actionName();
+
+                $result = call_user_func_array(array($controllerObject, $actionName), $parameters);
+
+
+
+
                 if ($result != null) {
                     break;
                 }
